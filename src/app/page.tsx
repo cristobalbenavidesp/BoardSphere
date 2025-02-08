@@ -1,5 +1,3 @@
-import Image from "next/image";
-import Button from "./components/ui/Button";
 import ResumeCard from "./components/ui/ResumeCard";
 import WhoWeAre from "./components/landing/WhoWeAre";
 import Team from "./components/landing/Team";
