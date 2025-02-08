@@ -1,6 +1,6 @@
 import { MdOutlineArrowDownward as DownwardArrow } from "react-icons/md";
 
-function ResumeCard({ children }) {
+function ResumeCard({ children }: { children: React.ReactNode }) {
   return (
     <article className="resume-card grid grid-cols-1 overflow-hidden text-black">
       <div className="w-full h-full px-5 pt-10 flex flex-col gap-3">
