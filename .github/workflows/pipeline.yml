@@ -1,0 +1,24 @@
+name: Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "14"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - name: "Install dependencies"
+        run: pnpm install
+      - name: "Lint"
+        run: next lint
