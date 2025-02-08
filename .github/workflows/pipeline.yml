@@ -72,5 +72,6 @@ jobs:
         with:
           name: dist
           path: dist
+          github-token: ${{ github.token }}
       - name: "Test"
         run: pnpm run test
