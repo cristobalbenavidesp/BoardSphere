@@ -8,7 +8,9 @@ export default function Home() {
   return (
     <div className="flex flex-col w-screen h-full min-h-screen font-ubuntu">
       <header className="w-full self-start flex px-8 p-5 justify-between shadow-md absolute bg-primary">
-        <h1 className="text-3xl font-bold text-white">BoardSphere</h1>
+        <h1 className="text-3xl font-bold text-white" role="BusinessName">
+          BoardSphere
+        </h1>
         <nav className="flex items-center justify-center gap-x-8 self-en text-white">
           <a href="#who-we-are" className="text-lg font-medium">
             ¿Quienes somos?
@@ -21,6 +23,14 @@ export default function Home() {
           </a>
           <a href="#contact" className="text-lg font-medium">
             Contacto
+          </a>
+          <a
+            className="text-lg font-medium"
+            href="/signup"
+            role="link"
+            aria-label="Sign up"
+          >
+            Sign up
           </a>
         </nav>
       </header>
