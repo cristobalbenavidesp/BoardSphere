@@ -1,4 +1,4 @@
-import { it, expect, test, describe, afterEach } from "vitest";
+import { it, describe, afterEach } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import Page from "../app/page";
 

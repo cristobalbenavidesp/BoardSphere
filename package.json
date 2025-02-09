@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.0.5",
-    "next": "14.2.15",
+    "eslint-config-prettier": "^10.0.1",
+    "next": "^15",
     "react": "^18",
     "react-dom": "^18",
     "react-icons": "^5.4.0",
@@ -26,7 +27,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.2.0",
     "eslint-config-google": "^0.14.0",
-    "eslint-config-next": "^14.2.15",
+    "eslint-config-next": "^15",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-yml": "^1.16.0",
     "happy-dom": "^17.0.2",

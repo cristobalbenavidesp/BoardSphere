@@ -1,3 +1,8 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript", "plugin:yml/standard"]
+  "extends": [
+    "next/core-web-vitals",
+    "next/typescript",
+    "plugin:yml/standard",
+    "prettier"
+  ]
 }
