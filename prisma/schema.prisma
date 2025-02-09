@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Article {
+  project_id     String          @db.Uuid
+  chapter_id     Int
+  createdAt      DateTime?       @default(now()) @db.Timestamp(6)
+  user_rut       String          @db.VarChar(255)
+  id             Int
+  chapter        Chapter         @relation("article-chapter", fields: [chapter_id, project_id], references: [id, project_id])
+  project        Project         @relation("article-project", fields: [project_id], references: [id])
+  creator        User            @relation("article-creator", fields: [user_rut], references: [RUT])
+  clauses        Clause[]        @relation("clause-article")
+  participations Participation[] @relation("participation-article")
+
+  @@id([id, project_id, chapter_id])
+}
+
+model Clause {
+  id             Int
+  project_id     String          @db.Uuid
+  article_id     Int
+  chapter_id     Int
+  description    String
+  status         String          @default("pending") @db.VarChar(10)
+  createdAt      DateTime?       @default(now()) @db.Timestamp(6)
+  updatedAt      DateTime?       @updatedAt @db.Timestamp(6)
+  article        Article         @relation("clause-article", fields: [article_id, project_id, chapter_id], references: [id, project_id, chapter_id])
+  chapter        Chapter         @relation("clause-chapter", fields: [chapter_id, project_id], references: [id, project_id])
+  project        Project         @relation("clause-project", fields: [project_id], references: [id])
+  participations Participation[] @relation("participation-clause")
+
+  @@id([id, project_id, article_id, chapter_id])
+}
+
+model Chapter {
+  project_id     String          @db.Uuid
+  title          String          @db.VarChar(100)
+  description    String
+  id             Int
+  articles       Article[]       @relation("article-chapter")
+  project        Project         @relation("chapter-project", fields: [project_id], references: [id])
+  clauses        Clause[]        @relation("clause-chapter")
+  participations Participation[] @relation("participation-chapter")
+
+  @@id([id, project_id])
+}
+
+model Comment {
+  id                String    @id @default(uuid()) @db.Uuid
+  user_rut          String    @db.VarChar(255)
+  post_id           String    @db.Uuid
+  content           String
+  parent_comment_id String?   @db.Uuid
+  createdAt         DateTime? @default(now()) @db.Timestamp(6)
+  updatedAt         DateTime? @updatedAt @db.Timestamp(6)
+  parent_comment    Comment?  @relation("comment-parentComment", fields: [parent_comment_id], references: [id])
+  comments          Comment[] @relation("comment-parentComment")
+  post              Post      @relation("comment-post", fields: [post_id], references: [id])
+  user              User      @relation("comment-creator", fields: [user_rut], references: [RUT])
+}
+
+model Participation {
+  user_rut    String    @db.VarChar(255)
+  type        String    @db.VarChar(20)
+  observation String?
+  createdAt   DateTime? @default(now()) @db.Timestamp(6)
+  updatedAt   DateTime? @updatedAt @db.Timestamp(6)
+  chapter_id  Int
+  clause_id   Int
+  project_id  String    @db.Uuid
+  id          Int
+  article_id  Int
+  article     Article   @relation("participation-article", fields: [article_id, project_id, chapter_id], references: [id, project_id, chapter_id])
+  chapter     Chapter   @relation("participation-chapter", fields: [chapter_id, project_id], references: [id, project_id])
+  clause      Clause    @relation("participation-clause", fields: [clause_id, project_id, article_id, chapter_id], references: [id, project_id, article_id, chapter_id])
+  project     Project   @relation("participation-project", fields: [project_id], references: [id])
+  user        User      @relation("participation-creator", fields: [user_rut], references: [RUT])
+
+  @@id([id, user_rut, article_id, clause_id, project_id, chapter_id])
+}
+
+model Post {
+  id         String    @id @default(uuid()) @db.Uuid
+  project_id String    @db.Uuid
+  title      String    @db.VarChar(100)
+  content    String
+  createdAt  DateTime? @default(now()) @db.Timestamp(6)
+  updatedAt  DateTime? @updatedAt @db.Timestamp(6)
+  user_rut   String    @db.VarChar(255)
+  comments   Comment[] @relation("comment-post")
+  project    Project   @relation("post-project", fields: [project_id], references: [id])
+  creator    User      @relation("post-creator", fields: [user_rut], references: [RUT])
+}
+
+model Project {
+  id              String              @id @default(uuid()) @db.Uuid
+  title           String              @db.VarChar(100)
+  organization    String              @db.VarChar(80)
+  description     String
+  official        Boolean             @default(false)
+  invitation_type String              @default("open") @db.VarChar(20)
+  phase           Int                 @default(1)
+  createdAt       DateTime?           @default(now()) @db.Timestamp(6)
+  updatedAt       DateTime?           @updatedAt @db.Timestamp(6)
+  user_rut        String              @db.VarChar(255)
+  articles        Article[]           @relation("article-project")
+  chapters        Chapter[]           @relation("chapter-project")
+  clauses         Clause[]            @relation("clause-project")
+  participations  Participation[]     @relation("participation-project")
+  posts           Post[]              @relation("post-project")
+  creator         User                @relation("project-creator", fields: [user_rut], references: [RUT])
+  invitations     ProjectInvitation[] @relation("invitation-project")
+}
+
+model ProjectInvitation {
+  project_id String    @db.Uuid
+  createdAt  DateTime? @default(now()) @db.Timestamp(6)
+  updatedAt  DateTime? @updatedAt @db.Timestamp(6)
+  status     String    @default("pending") @db.VarChar(20)
+  user_rut   String    @db.VarChar(255)
+  project    Project   @relation("invitation-project", fields: [project_id], references: [id])
+  receiver   User      @relation("invitation-receiver", fields: [user_rut], references: [RUT])
+
+  @@id([project_id, user_rut])
+}
+
+model User {
+  RUT            String              @id @db.VarChar(255)
+  first_name     String              @db.VarChar(50)
+  last_name      String              @db.VarChar(50)
+  email          String              @db.VarChar(255)
+  password       String              @db.VarChar(255)
+  profession     String              @db.VarChar(255)
+  createdAt      DateTime?           @default(now()) @db.Timestamp(6)
+  updatedAt      DateTime?           @updatedAt @db.Timestamp(6)
+  Articles       Article[]           @relation("article-creator")
+  comments       Comment[]           @relation("comment-creator")
+  participations Participation[]     @relation("participation-creator")
+  posts          Post[]              @relation("post-creator")
+  projects       Project[]           @relation("project-creator")
+  invitations    ProjectInvitation[] @relation("invitation-receiver")
+}

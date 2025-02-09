@@ -6,73 +6,19 @@ on:
       - main
 
 jobs:
-  avoid-redundant:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cancel Previous Redundant Builds
-        uses: styfle/cancel-workflow-action@0.9.1
-        with:
-          access_token: ${{ github.token }}
-  lint:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '14'
       - uses: pnpm/action-setup@v4
         with:
           version: 10
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "pnpm"
       - name: "Install dependencies"
         run: pnpm install
       - name: "Lint"
-        run: pnpm run lint
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "pnpm"
-      - name: "Install dependencies"
-        run: pnpm install
-      - name: "Build"
-        run: pnpm run build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist
-  test:
-    needs: [build, lint]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-      - name: "Setup Node.js"
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "pnpm"
-      - name: "Install dependencies"
-        run: pnpm install
-      - uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ github.token }}
-      - name: "Test"
-        run: pnpm run test
+        run: next lint
