@@ -3,7 +3,7 @@ name: Deployment Pipeline
 on:
   push:
     branches:
-      - main
+      - stage
 
 jobs:
   avoid-redundant:

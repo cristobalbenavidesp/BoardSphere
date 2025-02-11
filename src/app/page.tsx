@@ -24,13 +24,22 @@ export default function Home() {
           <a href="#contact" className="text-lg font-medium">
             Contacto
           </a>
+        </nav>
+        <nav className="bg-white py-1 px-4 w-40 rounded-lg flex justify-between text-black">
           <a
-            className="text-lg font-medium"
+            className="text-lg font-medium text-primary hover:text-xl"
             href="/signup"
             role="link"
-            aria-label="Sign up"
           >
             Sign up
+          </a>
+          <span className="text-lg font-medium mx-1">|</span>
+          <a
+            className="text-lg font-medium hover:text-xl"
+            href="/login"
+            role="link"
+          >
+            Login
           </a>
         </nav>
       </header>
