@@ -1,6 +1,7 @@
 import SignUpPage from "../app/signup/page";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
-import { describe, it, afterEach, expect } from "vitest";
+import { Toaster } from "react-hot-toast";
+import { describe, it, afterEach, expect, vi } from "vitest";
 
 describe("Sign up page", () => {
   afterEach(cleanup);
@@ -20,6 +21,16 @@ describe("Sign up page", () => {
     render(<SignUpPage />);
     screen.getByLabelText("Last name");
     screen.getByRole("textbox", { name: "Last name" });
+  });
+  it("should have country input and label", () => {
+    render(<SignUpPage />);
+    screen.getByLabelText("Country");
+    screen.getByRole("textbox", { name: "Country" });
+  });
+  it("should have DNI input and label", () => {
+    render(<SignUpPage />);
+    screen.getByLabelText("DNI");
+    screen.getByRole("textbox", { name: "DNI" });
   });
   it("should have email input and label", () => {
     render(<SignUpPage />);
@@ -45,6 +56,7 @@ describe("Sign up page", () => {
     const submitButton = screen.getByRole("button", { name: "Submit" });
     expect(submitButton).toHaveProperty("disabled", true);
   });
+
   it("submit should be enabled when all text fields are filled", () => {
     render(<SignUpPage />);
     const nameInput = screen.getByRole("textbox", { name: "Name" });
@@ -66,6 +78,7 @@ describe("Sign up page", () => {
     fireEvent.change(confirmPasswordInput, { target: { value: "password" } });
     expect(submitButton).toHaveProperty("disabled", false);
   });
+
   it("should prevent form submission if email format is invalid", () => {
     render(<SignUpPage />);
 
@@ -115,13 +128,10 @@ describe("Sign up page", () => {
     });
     fireEvent.click(submitButton);
 
-    // Forzar blur para activar la validación personalizada
     fireEvent.blur(confirmPasswordInput);
 
-    // Esperar a que React procese los efectos
     await new Promise((r) => setTimeout(r, 0));
 
-    // Verificar que el campo 'confirm password' está marcado como inválido
     expect(confirmPasswordInput.validity.valid).toBe(false);
     expect(confirmPasswordInput.validationMessage).toBe(
       "Passwords do not match"
@@ -145,7 +155,125 @@ describe("Sign up page", () => {
     });
     fireEvent.click(submitButton);
 
-    // Verificar que el campo 'confirm password' es válido
     expect(confirmPasswordInput.validity.valid).toBe(true);
+  });
+});
+
+describe("Sign up page API integration", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    cleanup();
+  });
+
+  it("should call the API and show a success toast on successful sign up", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ message: "Success" }),
+        })
+      )
+    );
+
+    render(
+      <>
+        <SignUpPage />
+        <Toaster />
+      </>
+    );
+
+    fireEvent.change(screen.getByRole("textbox", { name: "Name" }), {
+      target: { value: "John" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "Last name" }), {
+      target: { value: "Doe" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "Country" }), {
+      target: { value: "USA" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "DNI" }), {
+      target: { value: "12345678" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "Email" }), {
+      target: { value: "john@example.com" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "Password" }), {
+      target: { value: "password123" },
+    });
+    fireEvent.change(
+      screen.getByRole("textbox", { name: "Confirm password" }),
+      { target: { value: "password123" } }
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /submit/i }));
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      "/api/signup",
+      expect.objectContaining({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: "John",
+          last_name: "Doe",
+          country: "USA",
+          dni: "12345678",
+          email: "john@example.com",
+          password: "password123",
+          confirm_password: "password123",
+        }),
+      })
+    );
+
+    await screen.findByText(/sign up successful/i);
+  });
+
+  it("should show an error toast if API call fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve({
+          ok: false,
+          json: () => Promise.resolve({ message: "Error" }),
+        })
+      )
+    );
+
+    render(
+      <>
+        <SignUpPage />
+        <Toaster />
+      </>
+    );
+
+    // Completar todos los campos
+    fireEvent.change(screen.getByRole("textbox", { name: "Name" }), {
+      target: { value: "John" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "Last name" }), {
+      target: { value: "Doe" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "Country" }), {
+      target: { value: "USA" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "DNI" }), {
+      target: { value: "12345678" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "Email" }), {
+      target: { value: "john@example.com" },
+    });
+    fireEvent.change(screen.getByRole("textbox", { name: "Password" }), {
+      target: { value: "password123" },
+    });
+    fireEvent.change(
+      screen.getByRole("textbox", { name: "Confirm password" }),
+      { target: { value: "password123" } }
+    );
+
+    // Enviar el formulario
+    fireEvent.click(screen.getByRole("button", { name: /submit/i }));
+
+    // Verificar que el toast de error aparece
+    expect(await screen.findByText(/sign up failed/i));
   });
 });
