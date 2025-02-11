@@ -24,14 +24,6 @@ export default function Home() {
           <a href="#contact" className="text-lg font-medium">
             Contacto
           </a>
-          <a
-            className="text-lg font-medium"
-            href="/signup"
-            role="link"
-            aria-label="Sign up"
-          >
-            Sign up
-          </a>
         </nav>
       </header>
       <div className="w-full p-5 px-8 md:px-14 xl:px-40 flex flex-col pb-40">

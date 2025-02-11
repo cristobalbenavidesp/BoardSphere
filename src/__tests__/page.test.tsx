@@ -23,8 +23,4 @@ describe("Page", () => {
     render(<Page />);
     screen.getAllByText("¿Quienes somos?");
   });
-  it("should show sign up button", () => {
-    render(<Page />);
-    screen.getByRole("link", { name: "Sign up" });
-  });
 });
